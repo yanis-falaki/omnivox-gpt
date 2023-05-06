@@ -1,0 +1,44 @@
+Lea
+  List of classes
+    Distributed Documents Page
+      List of documents
+        Title
+        Description - Optional
+        Download
+    Assignments Page
+      List of Assignments
+        Linked documents
+    Evaluation Grades Page
+      List of [evalutation:grade:date]
+      Grade Summary
+        current grade
+        class average
+        median
+        S.T.D.
+    List of announcements (HTML)
+
+Mio
+  inbox
+    List of Mios
+      Metadata
+        "from" field
+          "to" field
+          "date" field
+      content
+  outbox
+    same as inbox
+
+Events on main Page - Can be scraped from html
+  Documents to read
+  Assignments to submit
+  Class event
+  assesement
+
+  
+  Tools to make:
+    GetAssigments
+    GetAssignmentInfo
+    GetEvaluationGrades
+    GetAnnouncements
+    GetEvents
+    GetClassList
