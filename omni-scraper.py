@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 import os
+import json
 
 def Login(driver, id, password):
     driver.get("https://tav.omnivox.ca/Login")
@@ -43,7 +44,6 @@ def ScrapeDocuments(driver, element):
             description = description_element.find_elements(By.XPATH, "./child::*")[0].text
             document = {"category": category_name, "description": description, "date_distributed": date, "document_link": source_link}
             documents += document
-            print(document)
 
     driver.find_element(By.CSS_SELECTOR, ".raccourci.id-service_CVIP.code-groupe_lea").click()
     return documents
@@ -53,8 +53,13 @@ def ScrapeAssignments(driver, element):
     element.click()
     assignments = []
     category = "Assignments"
-    try :tr_list = driver.find_element(By.ID, "tabListeTravEtu")[0].find_elements(By.XPATH, "./child::*").find_elements(By.XPATH, "./child::*")
-    except: driver.find_element(By.CSS_SELECTOR, ".raccourci.id-service_CVIP.code-groupe_lea").click(); return
+    
+    try: 
+        parent = driver.find_element(By.CSS_SELECTOR, "#tabListeTravEtu")
+    except:
+        driver.find_element(By.CSS_SELECTOR, ".raccourci.id-service_CVIP.code-groupe_lea").click()
+        return
+    tr_list = parent.find_elements(By.XPATH, "./child::*")[0].find_elements(By.XPATH, "./child::*")
     tr_list.pop(0)
     for tr in tr_list:
         if len(tr.find_elements(By.XPATH, "./child::*")) == 2 and tr.find_elements(By.XPATH, "./child::*")[1].get_attribute("class") == "TitreCategorie":
@@ -83,15 +88,18 @@ def ScrapeAssignments(driver, element):
 
         document = {"category": category, "description": description, "deadline": date, "submission_status": submission_status, "assignment_link": document_source}
         assignments += document
-        print(document)
-        print(description)
     driver.find_element(By.CSS_SELECTOR, ".raccourci.id-service_CVIP.code-groupe_lea").click()
     return assignments
 
 
-def ScrapeEvaluations(driver, element):
-    pass
-
+def ScrapeGrades(driver, element, title):
+    grade = '-'
+    fractional_grade = element.find_elements(By.XPATH, ".//span[@class='note-principale']")[0].text
+    if fractional_grade != ' -  ': 
+        grade = element.find_element(By.XPATH, ".//span[@class='pourcentage']").text
+    average = element.find_elements(By.XPATH, ".//span[@class='note-principale']")[1].text
+    median = element.find_elements(By.XPATH, ".//span[@class='note-principale']")[2].text
+    return {"class": title, "grade": grade, "class_average": average, "class_median": median}
 
 def ScrapeAnnouncements(driver, element):
     pass
@@ -105,30 +113,48 @@ def RefreshElements(driver, i):
 
 
 def ScrapeClass(driver, i):
+    class_title = driver.find_elements(By.CSS_SELECTOR, ".card-panel.section-spacing")[i].find_element(By.XPATH, ".//div[@class='card-panel-title']").text
     sections = RefreshElements(driver, i)
-    ScrapeDocuments(driver, sections[1])
+    documents = ScrapeDocuments(driver, sections[1])
     sections = RefreshElements(driver, i)
-    #ScrapeAssignments(driver, sections[2])
+    assignments = ScrapeAssignments(driver, sections[2])
     sections = RefreshElements(driver, i)
-    #ScrapeEvaluations(driver, sections[3])
+    grades = ScrapeGrades(driver, sections[3], class_title)
+
+    # create directory if not exists
+    directory = f"./data/{class_title}/"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
     #ScrapeAnnouncements(driver, sections[4])
+    with open(f'./data/{class_title}/documents.json', 'w') as f:
+        json.dump(documents, f)
+    with open(f'./data/{class_title}/assignments.json', 'w') as f:
+        json.dump(assignments, f)
+
+    # all class grades will be in one file    
+    return grades
 
 
 def start():
     driver = webdriver.Chrome()
     Login(driver, os.environ.get("OMNI_USERNAME"), os.environ.get("OMNI_PASSWORD"))
-    #time.sleep(10)
 
-    # scrape class list
+    # traverse to class list section
     driver.find_element(By.CSS_SELECTOR, ".raccourci.id-service_CVIE.code-groupe_lea").click()
     # class_elements is a list of cards which contain classes
     class_elements = driver.find_elements(By.CSS_SELECTOR, ".card-panel.section-spacing")
     
-    #for i in range(len(class_elements)):
-    #   ScrapeClass(driver, i)
-       #need to refresh class list
-    #   class_elements = driver.find_elements(By.CSS_SELECTOR, ".card-panel.section-spacing")
-    ScrapeClass(driver, 1)
+    grades = []
+    for i in range(len(class_elements)):
+        grade = ScrapeClass(driver, i)
+        grades.append(grade)
+        # need to refresh class list
+        class_elements = driver.find_elements(By.CSS_SELECTOR, ".card-panel.section-spacing")
+
+    # need to load grades outside of loop, as one grade file contains all classes
+    with open('./data/grades.json', 'w') as f:
+        json.dump(grades, f)
 
 if __name__ == "__main__":
     start()
