@@ -191,7 +191,7 @@ def ScrapeClass(driver, i):
         json.dump(assignments, f)
 
     # all class grades will be in one file
-    return grades
+    return [grades, class_title]
 
 
 def start():
@@ -208,9 +208,11 @@ def start():
     )
 
     grades = []
+    classes = []
     for i in range(len(class_elements)):
-        grade = ScrapeClass(driver, i)
-        grades.append(grade)
+        list = ScrapeClass(driver, i)
+        grades.append(list[0])
+        classes.append(list[1])
         # need to refresh class list
         class_elements = driver.find_elements(
             By.CSS_SELECTOR, ".card-panel.section-spacing"
@@ -219,6 +221,8 @@ def start():
     # need to load grades outside of loop, as one grade file contains all classes
     with open("./data/grades.json", "w") as f:
         json.dump(grades, f)
+    with open("./data/class_list.json", "w") as f:
+        json.dump(classes, f)
 
 
 if __name__ == "__main__":
