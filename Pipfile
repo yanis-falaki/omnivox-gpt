@@ -9,6 +9,8 @@ black = "*"
 langchain = "*"
 openai = "*"
 python-dotenv = "*"
+streamlit = "*"
+streamlit-chat = "*"
 
 [dev-packages]
 

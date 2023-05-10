@@ -12,12 +12,6 @@ def Login(driver, id, password):
     driver.find_element(By.ID, "Password").submit()
 
 
-def ScrapeEvents(driver):
-    events = driver.find_element(By.CSS_SELECTOR, ".carte-portail.carte-evenement")
-    print(events.text)
-    return 0
-
-
 def ScrapeClassList(driver):
     driver.find_element(
         By.CSS_SELECTOR, ".raccourci.id-service_CVIE.code-groupe_lea"
