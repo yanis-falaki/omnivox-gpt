@@ -12,6 +12,7 @@ python-dotenv = "*"
 streamlit = "*"
 streamlit-chat = "*"
 selenium-wire = "*"
+pyyaml = "*"
 
 [dev-packages]
 

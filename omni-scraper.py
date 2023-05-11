@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 import os
-import json
+import yaml
 
 
 def Login(driver, id, password):
@@ -106,9 +106,9 @@ def ScrapeAssignments(driver, element):
         # opens pop-up window, must select it
         window_handles = driver.window_handles
         driver.switch_to.window(window_handles[1])
-        document_source = driver.find_element(By.ID, "ALienFichierLie2").get_attribute(
-            "href"
-        )
+        if driver.find_element(By.ID, "lblDocumentLie").text == "No document":
+            has_attachment = False
+        else: has_attachment = True
         driver.close()
         driver.switch_to.window(window_handles[0])
 
@@ -117,7 +117,7 @@ def ScrapeAssignments(driver, element):
             "description": description,
             "deadline": date,
             "submission_status": submission_status,
-            "assignment_link": document_source,
+            "has_attachment": has_attachment,
         }
         assignments.append(document)
     driver.find_element(
@@ -179,10 +179,10 @@ def ScrapeClass(driver, i):
         os.makedirs(directory)
 
     # ScrapeAnnouncements(driver, sections[4])
-    with open(f"./data/{class_title}/documents.json", "w") as f:
-        json.dump(documents, f)
-    with open(f"./data/{class_title}/assignments.json", "w") as f:
-        json.dump(assignments, f)
+    with open(f"./data/{class_title}/documents.yaml", "w") as f:
+        yaml.dump(documents, f)
+    with open(f"./data/{class_title}/assignments.yaml", "w") as f:
+        yaml.dump(assignments, f)
 
     # all class grades will be in one file
     return [grades, class_title]
@@ -213,10 +213,10 @@ def start():
         )
 
     # need to load grades outside of loop, as one grade file contains all classes
-    with open("./data/grades.json", "w") as f:
-        json.dump(grades, f)
-    with open("./data/class_list.json", "w") as f:
-        json.dump(classes, f)
+    with open("./data/grades.yaml", "w") as f:
+        yaml.dump(grades, f)
+    with open("./data/class_list.yaml", "w") as f:
+        yaml.dump(classes, f)
 
 
 if __name__ == "__main__":

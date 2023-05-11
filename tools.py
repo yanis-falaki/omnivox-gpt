@@ -1,5 +1,5 @@
 from langchain.tools import BaseTool, Tool, tool
-import json
+import yaml
 import datetime
 import pytz
 from seleniumwire import webdriver
@@ -10,7 +10,7 @@ import os
 @tool
 def get_classes(input: str):
     """This is useful to get a list of all classes. The classes are given in a format of Course Code and Description"""
-    with open("./data/class_list.json", "r") as f:
+    with open("./data/class_list.yaml", "r") as f:
         data = f.read()
     return data
 
@@ -24,16 +24,11 @@ def get_assignments(class_name: str):
     345-102-MQ WORLD VIEWS
     """
     try:
-        with open(f"./data/{class_name}/assignments.json", "r") as f:
-            data = json.load(f)
+        with open(f"./data/{class_name}/assignments.yaml", "r") as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
     except: return "The input must be formatted correctly"
 
-    # Getting rid of assignment link to reduce token amount
-    if data is not None:
-        for d in data:
-            del d["assignment_link"]
-
-    formatted_data = json.dumps(data)
+    formatted_data = yaml.dump(data)
     return formatted_data
 
 
@@ -46,8 +41,8 @@ def get_documents(class_name: str):
     345-102-MQ WORLD VIEWS
     """
     try:
-        with open(f"./data/{class_name}/documents.json", "r") as f:
-            data = json.load(f)
+        with open(f"./data/{class_name}/documents.yaml", "r") as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
     except: return "The input must be formatted correctly"
 
     # Getting rid of document link to reduce token amount
@@ -55,7 +50,7 @@ def get_documents(class_name: str):
         for d in data:
             del d["document_link"]
 
-    formatted_data = json.dumps(data)
+    formatted_data = yaml.dump(data)
     return formatted_data
 
 
@@ -72,8 +67,8 @@ def get_date(input=""):
 def get_grade_info(class_name: str):
     """Useful for when you need to either get the student's grade, class average, and class median for any particular class. The input for this tool is a class in format of
     Course code and Description. Example input: 201-NYC-05 LINEAR ALGEBRA"""
-    with open(f"./data/grades.json", "r") as f:
-        data = json.load(f)
+    with open(f"./data/grades.yaml", "r") as f:
+        data = yaml.load(f)
 
     class_data = None
 
@@ -96,16 +91,16 @@ def download_assignment(input:str):
     class_assignment = input.split(' ~ ', 1)
 
     try:
-        with open(f"./data/{class_assignment[0]}/assignments.json", "r") as f:
-            json_object = json.load(f)
+        with open(f"./data/{class_assignment[0]}/assignments.yaml", "r") as f:
+            yaml_object = yaml.load(f, Loader=yaml.FullLoader)
     except:
-        print(f"./data/{class_assignment[0]}/assignments.json")
+        print(f"./data/{class_assignment[0]}/assignments.yaml")
         return "Invalid Input"
     
-    for d in json_object:
+    for d in yaml_object:
         if d["description"] == class_assignment[1]:
-            assignment_link = d["assignment_link"]
-            if assignment_link == "null" or assignment_link is None:
+            assignment_exists = d["has_attachment"]
+            if assignment_exists is False:
                 return "There is no document attatched to this assignment"
     
 
@@ -151,7 +146,7 @@ def download_assignment(input:str):
     cookies = driver.get_cookies()
     for cookie in cookies:
         session.cookies.set(cookie['name'], cookie['value'])
-        
+
     # need to add headers as well
     for request in driver.requests:
         headers = request.headers # <----------- Request headers
@@ -173,7 +168,7 @@ def download_assignment(input:str):
     driver.quit()
 
     if response.status_code == 200:
-        return "Downloaded Succesfully."
+        return "Downloaded Succesfully. If you are about to state your final answer, you must state that the download was succesful and nothing else."
     elif response.status_code == 403:
         return "Download failed. Response 403"
     else:
