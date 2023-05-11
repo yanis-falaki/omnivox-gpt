@@ -2,8 +2,10 @@ from langchain.tools import BaseTool, Tool, tool
 import json
 import datetime
 import pytz
-from selenium import webdriver
+from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
+import requests
+import os
 
 @tool
 def get_classes(input: str):
@@ -85,35 +87,98 @@ def get_grade_info(class_name: str):
 
 @tool
 def download_assignment(input:str):
-    """Useful for when you need to get the link of an assignment. The input for this tool is a class in format of
-    Course code and Description, and the assignment description field i.e class_name tilda description, there should be no spaces before or after the tilda.
-    You can get a list of assignments with descriptions for a particular class using the get_assignments tool.
+    """Useful for when you need to download an assignment. The input for this tool is a class in format of Course code and Description, 
+    and the assignment description field i.e class_name tilda description. You can get a list of assignments with descriptions for a particular class using the get_assignments tool.
     Example inputs:
-    201-NYC-05 LINEAR ALGEBRA~Assignment 1
-    201-NYB-05 CALCULUS II~Sigma Notation
-    345-102-MQ WORLD VIEWS~Debate Instructions"""
-    split_string = input.split('~', 1)
-    assignment_link = "The assignment does not have a document attatched"
+    201-NYC-05 LINEAR ALGEBRA ~ Assignment 1
+    201-NYB-05 CALCULUS II ~ Sigma Notation
+    345-102-MQ WORLD VIEWS ~ Debate Instructions"""
+    class_assignment = input.split(' ~ ', 1)
 
     try:
-        with open(f"./data/{split_string[0]}/assignments.json", "r") as f:
+        with open(f"./data/{class_assignment[0]}/assignments.json", "r") as f:
             json_object = json.load(f)
     except:
-        print(f"./data/{split_string[0]}/assignments.json")
+        print(f"./data/{class_assignment[0]}/assignments.json")
         return "Invalid Input"
-    for d in json_object:
-        if d["description"] == split_string[1]:
-            assignment_link = d["assignment_link"]
     
-    # navigating to omnivox and logging in
+    for d in json_object:
+        if d["description"] == class_assignment[1]:
+            assignment_link = d["assignment_link"]
+            if assignment_link == "null" or assignment_link is None:
+                return "There is no document attatched to this assignment"
+    
+
+    # set up the Chrome driver
     driver = webdriver.Chrome()
-    driver.get("https://tav.omnivox.ca/Login")
+
+    # navigate to the website and log in
+    driver.get("https://tav.omnivox.ca/Login/")
     driver.find_element(By.ID, "Identifiant").send_keys(os.environ.get("OMNI_USERNAME"))
     driver.find_element(By.ID, "Password").send_keys(os.environ.get("OMNI_PASSWORD"))
     driver.find_element(By.ID, "Password").submit()
 
-    # Navigating to document assignment page
-    driver.get(assignment_link)
+    # Navigate to class list
+    driver.find_element(
+        By.CSS_SELECTOR, ".raccourci.id-service_CVIE.code-groupe_lea"
+    ).click()
+
+    # need to parse class name to select proper element
+    code_class = class_assignment[0].split(" ", 1)
+
+    # selecting the proper elements
+    title = driver.find_element(By.XPATH, f"//..//*[contains(text(), '{code_class[0]}') and contains(text(), '{code_class[1]}')]")
+    content = title.find_element(By.XPATH, "../..")
+
+    # This gets to the assignment section, changing the last index to 1 changes to documents
+    content.find_elements(By.XPATH, "./child::*")[1].find_elements(By.XPATH, "./child::*")[2].click()
+
+    # Open assignment window
+    driver.find_element(By.XPATH, f"//..//*[contains(text(), '{class_assignment[1]}')]").click()
+
+    # opens pop-up window, must select it
+    window_handles = driver.window_handles
+    driver.switch_to.window(window_handles[1])
+
+    # Open pdf file
+    driver.find_element(By.ID, "ALienFichierLie2").click()
+
+    # creating request session
+    session = requests.Session()
+
+    # Need to copy cookies to session
+    url = driver.current_url
+    cookies = driver.get_cookies()
+    for cookie in cookies:
+        session.cookies.set(cookie['name'], cookie['value'])
+        
+    # need to add headers as well
+    for request in driver.requests:
+        headers = request.headers # <----------- Request headers
+    for key, value in headers.items():
+        session.headers[key] = value
+
+    response = session.get(url)
+    print(url)
+    print(response)
+
+    # create directory if does not exist, then write to file
+    directory = f"./data/downloads/"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    with open(f"{directory}/{class_assignment[0]}-{class_assignment[1]}.pdf", "wb") as f:
+        f.write(response.content)
+
+    # close the driver
+    driver.quit()
+
+    if response.status_code == 200:
+        return "Downloaded Succesfully."
+    elif response.status_code == 403:
+        return "Download failed. Response 403"
+    else:
+        return f"Download failed. Response {response.status_code}"
+
 
 @tool
 def query_attatchments(query:str):
