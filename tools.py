@@ -68,7 +68,7 @@ def get_grade_info(class_name: str):
     """Useful for when you need to either get the student's grade, class average, and class median for any particular class. The input for this tool is a class in format of
     Course code and Description. Example input: 201-NYC-05 LINEAR ALGEBRA"""
     with open(f"./data/grades.yaml", "r") as f:
-        data = yaml.load(f)
+        data = yaml.load(f, Loader=yaml.FullLoader)
 
     class_data = None
 
@@ -91,7 +91,7 @@ def download_attachment(input:str):
     class_aord_assignment = input.split(' ~ ', 2)
 
     if class_aord_assignment[2] == "assignment":
-        return download_assignment()
+        return download_assignment([class_aord_assignment[0], class_aord_assignment[1]])
     elif class_aord_assignment[2] == "document":
         return download_document()
     else:
@@ -164,8 +164,6 @@ def download_assignment(class_assignment):
         session.headers[key] = value
 
     response = session.get(url)
-    print(url)
-    print(response)
 
     # create directory if does not exist, then write to file
     directory = f"./data/downloads/"

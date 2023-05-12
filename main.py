@@ -26,7 +26,7 @@ def run_llm(question:str):
         tools.get_documents,
         tools.get_date,
         tools.get_grade_info,
-        tools.download_assignment,
+        tools.download_attachment,
     ]
 
     agent = initialize_agent(
