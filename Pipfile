@@ -13,6 +13,8 @@ streamlit = "*"
 streamlit-chat = "*"
 selenium-wire = "*"
 pyyaml = "*"
+python-magic-bin = "==0.4.14"
+install = "*"
 
 [dev-packages]
 

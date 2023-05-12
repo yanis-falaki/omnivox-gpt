@@ -81,22 +81,32 @@ def get_grade_info(class_name: str):
 
 
 @tool
-def download_assignment(input:str):
-    """Useful for when you need to download an assignment. The input for this tool is a class in format of Course code and Description, 
-    and the assignment description field i.e class_name tilda description. You can get a list of assignments with descriptions for a particular class using the get_assignments tool.
+def download_attachment(input:str):
+    """Useful for when you need to download an assignment or document. The input for this tool is a class in format of Course code and Description, document/assignment
+    and the document/assignment description field i.e class_name tilda description. You can get a list of assignments and document with descriptions for a particular class using the get_assignments and get_documents tool.
     Example inputs:
-    201-NYC-05 LINEAR ALGEBRA ~ Assignment 1
-    201-NYB-05 CALCULUS II ~ Sigma Notation
-    345-102-MQ WORLD VIEWS ~ Debate Instructions"""
-    class_assignment = input.split(' ~ ', 1)
+    201-NYC-05 LINEAR ALGEBRA ~ Assignment 1 ~ assignment
+    201-NYB-05 CALCULUS II ~ Sigma Notation ~ document
+    345-102-MQ WORLD VIEWS ~ Debate Instructions ~ assignment"""
+    class_aord_assignment = input.split(' ~ ', 2)
 
+    if class_aord_assignment[2] == "assignment":
+        return download_assignment()
+    elif class_aord_assignment[2] == "document":
+        return download_document()
+    else:
+        return 'Improperly formatted'
+
+
+
+def download_assignment(class_assignment):
     try:
         with open(f"./data/{class_assignment[0]}/assignments.yaml", "r") as f:
             yaml_object = yaml.load(f, Loader=yaml.FullLoader)
     except:
         print(f"./data/{class_assignment[0]}/assignments.yaml")
-        return "Invalid Input"
-    
+        return "Invalid input, course code and description not properly formatted or does not exist"
+
     for d in yaml_object:
         if d["description"] == class_assignment[1]:
             assignment_exists = d["has_attachment"]
@@ -161,7 +171,7 @@ def download_assignment(input:str):
     directory = f"./data/downloads/"
     if not os.path.exists(directory):
         os.makedirs(directory)
-    with open(f"{directory}/{class_assignment[0]}-{class_assignment[1]}.pdf", "wb") as f:
+    with open(f"{directory}/{class_assignment[0]} ~ {class_assignment[1]}.pdf", "wb") as f:
         f.write(response.content)
 
     # close the driver
@@ -173,6 +183,10 @@ def download_assignment(input:str):
         return "Download failed. Response 403"
     else:
         return f"Download failed. Response {response.status_code}"
+
+
+def download_document(class_document):
+    pass
 
 
 @tool
