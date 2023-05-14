@@ -1,8 +1,24 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 import time
 import os
 import yaml
+
+month_map = {
+    "Jan": "January",
+    "Feb": "February",
+    "Mar": "March",
+    "Apr": "April",
+    "May": "May",
+    "Jun": "June",
+    "Jul": "July",
+    "Aug": "August",
+    "Sep": "September",
+    "Oct": "October",
+    "Nov": "November",
+    "Dec": "December"
+}
 
 
 def Login(driver, id, password):
@@ -44,18 +60,24 @@ def ScrapeDocuments(driver, element):
             date_element = td_list[2]
             source_element = td_list[3]
 
-            source_link = source_element.find_elements(By.XPATH, "./child::*")[
-                0
-            ].get_attribute("href")
+            #source_link = source_element.find_elements(By.XPATH, "./child::*")[
+            #    0
+            #].get_attribute("href")
+            # Formatting date from 3 letter month to full month name
             date = date_element.find_elements(By.XPATH, "./child::*")[0].text
+            date_split = date.split(' ', 1)
+            short_month = date_split[0].split("\n", 1)[1]
+            month = f"{month_map[short_month]}"
+            formatted_date = f"Distributed {month} {date_split[1]}"
+
             description = description_element.find_elements(By.XPATH, "./child::*")[
                 0
             ].text
             document = {
                 "category": category_name,
                 "description": description,
-                "date_distributed": date,
-                "document_link": source_link,
+                "date_distributed": formatted_date,
+            #    "document_link": source_link,
             }
             documents.append(document)
 
@@ -101,6 +123,11 @@ def ScrapeAssignments(driver, element):
         date = date_element.find_elements(By.XPATH, "./child::*")[0].text
         description = description_element.text
 
+        # Formatting date from 3 letter month to full month name
+        date_split = date.split('-', 1)
+        month = f"{month_map[date_split[0]]}"
+        formatted_date = f"{month} {date_split[1]}"
+
         # Get linked document to assignment
         description_element.find_element(By.XPATH, ".//a").click()
         # opens pop-up window, must select it
@@ -115,7 +142,7 @@ def ScrapeAssignments(driver, element):
         document = {
             "category": category,
             "description": description,
-            "deadline": date,
+            "deadline": formatted_date,
             "submission_status": submission_status,
             "has_attachment": has_attachment,
         }
@@ -189,7 +216,10 @@ def ScrapeClass(driver, i):
 
 
 def start():
-    driver = webdriver.Chrome()
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+
+    driver = webdriver.Chrome(options=chrome_options)
     Login(driver, os.environ.get("OMNI_USERNAME"), os.environ.get("OMNI_PASSWORD"))
 
     # traverse to class list section
