@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv("../../.env")
 from langchain.agents import initialize_agent
 from langchain.agents import AgentType
 from langchain.chat_models import ChatOpenAI
