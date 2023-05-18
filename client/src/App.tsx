@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from 'react';
+import './App.css';
 
 function App() {
-
   const [data, setData] = useState([{}])
 
   useEffect(() => {
@@ -15,7 +15,7 @@ function App() {
   }, [])
 
   return (
-    <div>
+    <div className="App">
     </div>
   );
 }
