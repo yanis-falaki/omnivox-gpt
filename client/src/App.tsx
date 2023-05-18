@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import './App.css';
+import Header from './components/Header';
 
-function App() {
+const App: React.FC = () => {
   const [data, setData] = useState([{}])
 
   useEffect(() => {
@@ -16,6 +17,7 @@ function App() {
 
   return (
     <div className="App">
+      <Header title='Omnivox-GPT'/>
     </div>
   );
 }
