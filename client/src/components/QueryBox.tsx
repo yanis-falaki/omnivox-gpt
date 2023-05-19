@@ -13,13 +13,13 @@ const QueryBox: React.FC = () => {
     }
 
     return (
-        <div className='sticky bottom-0 -my-20 py-12 bg-gradient-to-t from-gray-200  to-transparent'>
+        <div className='sticky bottom-0 h-32 bg-gradient-to-t from-gray-200 to-transparent flex flex-col justify-center'>
             <form onSubmit={handleSubmit}>
                 <input
                     type="text"
                     value={text}
                     onChange={handleTextChange}
-                    className="border border-gray-300 px-6 py-2 mx-auto w-1/3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="border border-gray-300 py-2 mt-8 w-full lg:w-1/2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
             </form>
         </div>
