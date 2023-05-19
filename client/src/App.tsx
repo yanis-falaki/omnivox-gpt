@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import './App.css';
-import Header from './components/Header';
+import { Header } from './components/Header';
+import ChatContainer from './components/ChatContainer';
 
 const App: React.FC = () => {
   const [data, setData] = useState([{}])
@@ -16,8 +17,9 @@ const App: React.FC = () => {
   }, [])
 
   return (
-    <div className="App">
+    <div className="App flex flex-col">
       <Header title='Omnivox-GPT'/>
+      <ChatContainer/>
     </div>
   );
 }
