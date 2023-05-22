@@ -40,7 +40,7 @@ def get_documents(class_name: str):
     Example inputs:
     201-NYC-05 LINEAR ALGEBRA
     201-NYB-05 CALCULUS II
-    345-102-MQ WORLD VIEWS
+    603-102-MQ LITERARY GENRES
     """
     try:
         with open(f"./data/{class_name}/documents.yaml", "r") as f:
@@ -81,10 +81,10 @@ def get_grade_info(class_name: str):
 def download_attachment(input:str):
     """Useful for when you need to download an assignment or document. The input for this tool is a class in format of Course code and Description, document/assignment
     and the document/assignment description field i.e class_name tilda description. You can get a list of assignments and document with descriptions for a particular class using the get_assignments and get_documents tool,
-    you must input the assignment or document description exactly how it's spelt in the description field.
+    you must input the assignment or document description exactly how it's spelt in the description field, including any content you may find irrelevant.
     Example inputs:
     201-NYC-05 LINEAR ALGEBRA ~ Assignment 1 ~ assignment
-    201-NYB-05 CALCULUS II ~ Sigma Notation ~ document
+    603-102-MQ LITERARY GENRES ~ '"The Lottery" by Shirley Jackson  Must have read this document for March 8, 2023' ~ document
     345-102-MQ WORLD VIEWS ~ Debate Instructions ~ assignment"""
     class_assignment_aord = input.split(' ~ ', 2)
 
@@ -189,7 +189,7 @@ def download_document(class_document):
         with open(f"./data/{class_document[0]}/documents.yaml", "r") as f:
             yaml_object = yaml.load(f, Loader=yaml.FullLoader)
     except:
-        print(f"./data/{class_document[0]}/assignments.yaml")
+        print(f"./data/{class_document[0]}/documents.yaml")
         return "Invalid input, course code and description not properly formatted or does not exist."
     
     doc_exists = False

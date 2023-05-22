@@ -4,6 +4,9 @@ from selenium.webdriver.chrome.options import Options
 import time
 import os
 import yaml
+from dotenv import load_dotenv
+
+load_dotenv('../../.env')
 
 month_map = {
     "Jan": "January",
@@ -73,6 +76,7 @@ def ScrapeDocuments(driver, element):
             description = description_element.find_elements(By.XPATH, "./child::*")[
                 0
             ].text
+            #description = description.replace('\n', ' ')
             document = {
                 "category": category_name,
                 "description": description,
@@ -219,7 +223,7 @@ def start():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
 
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome()
     Login(driver, os.environ.get("OMNI_USERNAME"), os.environ.get("OMNI_PASSWORD"))
 
     # traverse to class list section
