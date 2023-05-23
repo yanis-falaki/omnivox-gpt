@@ -1,15 +1,18 @@
 import React from 'react'
 import HumanMessage from './HumanMessage'
 import AIMessage from './AIMessage'
+import { Message } from './ChatContainer';
 
-const Chatbox: React.FC = () => {
+interface ChatboxProps {
+    messages: Message[]
+  }
+
+const Chatbox: React.FC<ChatboxProps> = ({ messages }) => {
   return (
     <section className='flex-grow flex flex-col px-20 overflow-y-scroll'>
-        <HumanMessage message="What is your name?"/>
-        <AIMessage message="As an AI language model I don't have a name"/>
-        <HumanMessage message="What is my grade in linear algebra"/>
-        <AIMessage message="As an AI language model I don't have a name"/>
-        <HumanMessage message="Can you download my assignment 3 from my calculus class?"/>
+        {messages.map((message, index) => message.AI 
+          ? <AIMessage key={index} message={message.message} />
+          : <HumanMessage key={index} message={message.message} />)}
         <div className='mb-72'></div>
     </section>
   )

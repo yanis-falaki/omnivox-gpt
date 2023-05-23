@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface MessageProps {
-  message: string
+  message: string;
 }
 
 const AIMessage: React.FC<MessageProps> = (props) => {

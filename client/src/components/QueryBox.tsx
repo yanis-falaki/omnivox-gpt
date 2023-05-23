@@ -1,15 +1,25 @@
 import React, { useState, ChangeEvent } from 'react'
+import { Message } from './ChatContainer'
+import { v4 } from 'uuid'
 
-const QueryBox: React.FC = () => {
+interface QueryProps{
+    setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+}
+
+
+const QueryBox: React.FC<QueryProps> = ({ setMessages }) => {
 
     const [text, setText] = useState('')
 
-    const handleTextChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setText(e.target.value);
     }
 
-    const handleSubmit = () => {
-        console.log(text);
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const newMessage: Message = {AI: false, message: text, messageId: v4()}
+        setMessages((prev) => [...prev, newMessage])
+        setText('')
     }
 
     return (
