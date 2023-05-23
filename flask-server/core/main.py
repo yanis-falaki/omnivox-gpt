@@ -6,7 +6,7 @@ from langchain.agents import AgentType
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain import PromptTemplate
-import tools
+from . import tools
 from langchain.llms import OpenAI
 from langchain.agents import ConversationalAgent, ZeroShotAgent, AgentExecutor
 from langchain.chains import LLMChain
@@ -67,9 +67,8 @@ def run_llm(question:str, memory):
     )
     llm_chain = LLMChain(llm=OpenAI(temperature=0), prompt=prompt)
     agent = ZeroShotAgent(llm_chain=llm_chain, tools=tools_for_agent, verbose=True)
-    agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools_for_agent, verbose=True, memory=memory)
+    agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools_for_agent, verbose=True, memory=memory, max_iterations=4)
     result = agent_chain.run(question)
-    print(memory.buffer)
     return result
 
 

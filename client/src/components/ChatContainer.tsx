@@ -10,7 +10,7 @@ export interface Message{
 }
 
 const ChatContainer: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([{AI: false, message: "hello", messageId: v4()}, {AI: true, message:"Hello there!", messageId: v4()}]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   return (
     <div className='flex-grow flex flex-col h-screen'>

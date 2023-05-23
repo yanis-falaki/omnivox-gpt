@@ -7,12 +7,16 @@ from selenium.webdriver.common.by import By
 import requests
 import os
 import mimetypes
+from pathlib import Path
 import dotenv
+
+dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
+
 
 @tool
 def get_classes(input: str):
     """This is useful to get a list of all classes. The classes are given in a format of Course Code and Description"""
-    with open("./data/class_list.yaml", "r") as f:
+    with open(dir_path / "data/class_list.yaml", "r") as f:
         data = f.read()
     return data
 
@@ -26,7 +30,7 @@ def get_assignments(class_name: str):
     345-102-MQ WORLD VIEWS
     """
     try:
-        with open(f"./data/{class_name}/assignments.yaml", "r") as f:
+        with open(dir_path / f"data/{class_name}/assignments.yaml", "r") as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
     except: return "The input must be formatted correctly"
 
@@ -43,7 +47,7 @@ def get_documents(class_name: str):
     603-102-MQ LITERARY GENRES
     """
     try:
-        with open(f"./data/{class_name}/documents.yaml", "r") as f:
+        with open(dir_path / f"data/{class_name}/documents.yaml", "r") as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
     except: return "The input must be formatted correctly"
 
@@ -64,7 +68,7 @@ def get_date(input=""):
 def get_grade_info(class_name: str):
     """Useful for when you need to either get the student's grade, class average, and class median for any particular class. The input for this tool is a class in format of
     Course code and Description. Example input: 201-NYC-05 LINEAR ALGEBRA"""
-    with open(f"./data/grades.yaml", "r") as f:
+    with open(dir_path / "data/grades.yaml", "r") as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
 
     class_data = None
@@ -99,10 +103,10 @@ def download_attachment(input:str):
 
 def download_assignment(class_assignment):
     try:
-        with open(f"./data/{class_assignment[0]}/assignments.yaml", "r") as f:
+        with open(dir_path / f"data/{class_assignment[0]}/assignments.yaml", "r") as f:
             yaml_object = yaml.load(f, Loader=yaml.FullLoader)
     except:
-        print(f"./data/{class_assignment[0]}/assignments.yaml")
+        print(dir_path / f"data/{class_assignment[0]}/assignments.yaml")
         return "Invalid input, course code and description not properly formatted or does not exist."
 
     for d in yaml_object:
@@ -167,7 +171,7 @@ def download_assignment(class_assignment):
     file_extension = mimetypes.guess_extension(content_type)
 
     # create directory if does not exist, then write to file
-    directory = f"./data/downloads/"
+    directory = dir_path / "/data/downloads/"
     if not os.path.exists(directory):
         os.makedirs(directory)
     with open(f"{directory}/{class_assignment[0]} ~ {class_assignment[1]}.{file_extension}", "wb") as f:
@@ -186,10 +190,10 @@ def download_assignment(class_assignment):
 
 def download_document(class_document):
     try:
-        with open(f"./data/{class_document[0]}/documents.yaml", "r") as f:
+        with open(dir_path / f"data/{class_document[0]}/documents.yaml", "r") as f:
             yaml_object = yaml.load(f, Loader=yaml.FullLoader)
     except:
-        print(f"./data/{class_document[0]}/documents.yaml")
+        print(dir_path / f"data/{class_document[0]}/documents.yaml")
         return "Invalid input, course code and description not properly formatted or does not exist."
     
     doc_exists = False

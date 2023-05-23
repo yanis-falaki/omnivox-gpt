@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent } from 'react'
 import { Message } from './ChatContainer'
 import { v4 } from 'uuid'
+import axios from 'axios'
 
 interface QueryProps{
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>
@@ -15,11 +16,31 @@ const QueryBox: React.FC<QueryProps> = ({ setMessages }) => {
         setText(e.target.value);
     }
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const getResponse = async () => {
+        let AIresponse = ''
+        try {
+            const response = await axios({
+                method: 'post',
+                url: '/api/query',
+                headers: { 'Content-Type': 'text/plain' },
+                data: text
+            })
+            AIresponse = response.data;
+    
+            const newMessage: Message = {AI: true, message: AIresponse, messageId: v4()}
+            setMessages((prev) => [...prev, newMessage])
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const newMessage: Message = {AI: false, message: text, messageId: v4()}
         setMessages((prev) => [...prev, newMessage])
         setText('')
+
+        await getResponse()
     }
 
     return (

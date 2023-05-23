@@ -29,3 +29,5 @@ __pycache__
 /client/yarn-error.log*
 
 ###################
+
+dump.rdb
