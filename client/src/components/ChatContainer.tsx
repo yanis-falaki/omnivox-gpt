@@ -11,11 +11,12 @@ export interface Message{
 
 const ChatContainer: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false)
 
   return (
     <div className='flex-grow flex flex-col h-screen'>
-        <Chatbox messages={messages}/>
-        <QueryBox setMessages={setMessages}/>
+        <Chatbox messages={messages} loading={loading}/>
+        <QueryBox setMessages={setMessages} setLoading={setLoading} loading={loading}/>
     </div>
   )
 }

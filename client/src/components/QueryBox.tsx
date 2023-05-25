@@ -5,10 +5,12 @@ import axios from 'axios'
 
 interface QueryProps{
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+    loading: boolean
 }
 
 
-const QueryBox: React.FC<QueryProps> = ({ setMessages }) => {
+const QueryBox: React.FC<QueryProps> = ({ setMessages, setLoading, loading }) => {
 
     const [text, setText] = useState('')
 
@@ -17,6 +19,7 @@ const QueryBox: React.FC<QueryProps> = ({ setMessages }) => {
     }
 
     const getResponse = async () => {
+        setLoading(true)
         let AIresponse = ''
         try {
             const response = await axios({
@@ -32,6 +35,7 @@ const QueryBox: React.FC<QueryProps> = ({ setMessages }) => {
         } catch (error) {
             console.error('Error:', error);
         }
+        setLoading(false)
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -50,6 +54,7 @@ const QueryBox: React.FC<QueryProps> = ({ setMessages }) => {
                     type="text"
                     value={text}
                     onChange={handleTextChange}
+                    disabled={loading}
                     className="border border-gray-300 py-2 mt-8 w-full lg:w-1/2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
             </form>

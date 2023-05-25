@@ -50,8 +50,8 @@ def run_llm(question:str, memory):
     include brackets, quotes, or anything of that nature (unless it helps make the answer more understandable). Punctuation and capitalization must be gramatically correct, nothing
     can be in all capitalized letters. 
     Examples:
-    209-TVS-TB LINEAR ALGEBRA -> Linear Algebra
-    305-TVB-TA SOCIAL SCIENCE II -> Social Science II
+    201-NYC-05 LINEAR ALGEBRA -> Linear Algebra
+    305-TVB-TV SOCIAL SCIENCE II -> Social Science II
     You have access to the following tools:"""
     suffix = """Begin!"
 
